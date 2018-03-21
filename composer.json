@@ -1,0 +1,10 @@
+{
+    "name": "grena/ci-list",
+    "authors": [
+        {
+            "name": "Adrien Pétremann",
+            "email": "hello@grena.fr"
+        }
+    ],
+    "require": {}
+}
