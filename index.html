@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <style>
+            .ma-button {
+                background-clip: padding-box;
+                border: 1px solid #989898;
+                border-radius: 2px;
+                -webkit-box-shadow: inset 0 1px 0 0 white,0 1px 0 #fff;
+                -moz-box-shadow: inset 0 1px 0 0 white,0 1px 0 #fff;
+                box-shadow: inset 0 1px 0 0 white,0 1px 0 #fff;
+                color: #454545;
+                background-color: #fefefe;
+                background-image: deprecated-webkit-gradient(linear,left top,left bottom,#fefefe,#e5dfdf);
+                background-image: -webkit-linear-gradient(top,#fefefe,#e5dfdf);
+                background-image: -moz-linear-gradient(top,#fefefe,#e5dfdf);
+                background-image: -ms-linear-gradient(top,#fefefe,#e5dfdf);
+                background-image: -o-linear-gradient(top,#fefefe,#e5dfdf);
+                background-image: linear-gradient(top,#fefefe,#e5dfdf);
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#fefefe', EndColorStr='#e5dfdf')";
+                display: inline;
+                font-family: Helvetica,Arial,sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+                line-height: 16px;
+                padding: 4px 10px;
+                text-decoration: none;
+                text-shadow: 0 1px 0 #fff;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+
+            .ma-button.action {
+                color: #007ec6;
+            }
+
+            .ma-button.danger {
+                color: #DC2C0F;
+            }
+
+            .ma-button:hover:not(:disabled) {
+                -webkit-box-shadow: inset 0 1px 0 0 white,0 1px 0 #fff;
+                -moz-box-shadow: inset 0 1px 0 0 white,0 1px 0 #fff;
+                box-shadow: inset 0 1px 0 0 white,0 1px 0 #fff;
+                cursor: pointer;
+                background-color: #f1f1f1;
+                background-image: deprecated-webkit-gradient(linear,left top,left bottom,#f1f1f1,#ddd7d7);
+                background-image: -webkit-linear-gradient(top,#f1f1f1,#ddd7d7);
+                background-image: -moz-linear-gradient(top,#f1f1f1,#ddd7d7);
+                background-image: -ms-linear-gradient(top,#f1f1f1,#ddd7d7);
+                background-image: -o-linear-gradient(top,#f1f1f1,#ddd7d7);
+                background-image: linear-gradient(top,#f1f1f1,#ddd7d7);
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#f1f1f1', EndColorStr='#ddd7d7')";
+                /* Pour les a */
+                text-decoration: none;
+                color: #454545;
+            }
+
+            .ma-button:active:not(:disabled) {
+                background-color: #bebebe;
+                background-image: deprecated-webkit-gradient(linear,left top,left bottom,#bebebe,#ddd7d7);
+                background-image: -webkit-linear-gradient(top,#bebebe,#ddd7d7);
+                background-image: -moz-linear-gradient(top,#bebebe,#ddd7d7);
+                background-image: -ms-linear-gradient(top,#bebebe,#ddd7d7);
+                background-image: -o-linear-gradient(top,#bebebe,#ddd7d7);
+                background-image: linear-gradient(top,#bebebe,#ddd7d7);
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#bebebe', EndColorStr='#ddd7d7')";
+                -webkit-box-shadow: inset 0 1px 3px rgba(0,0,0,.25);
+                -moz-box-shadow: inset 0 1px 3px rgba(0,0,0,.25);
+                box-shadow: inset 0 1px 3px rgba(0,0,0,.25);
+            }
+
+            .ma-button:disabled {
+                opacity: .5;
+                cursor: default;
+            }
+
+            .inpute {
+                border: 1px solid #cecece;
+                width: 100%;
+                height: 25px;
+                margin-bottom: 5px;
+            }
+
+            table {
+                border: 1px solid #ccc;
+                border-collapse: collapse;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                table-layout: fixed;
+            }
+            table caption {
+                font-size: 1.5em;
+                margin: .5em 0 .75em;
+            }
+            table tr {
+                background: #f8f8f8;
+                border: 1px solid #ddd;
+                padding: .35em;
+            }
+            table th,
+            table td {
+                padding: .625em;
+                text-align: center;
+            }
+            table th {
+                font-size: .85em;
+                letter-spacing: .1em;
+                text-transform: uppercase;
+            }
+            @media screen and (max-width: 600px) {
+                table {
+                    border: 0;
+                    width: 100%;
+                }
+                table caption {
+                    font-size: 1.3em;
+                }
+                table thead {
+                    border: none;
+                    clip: rect(0 0 0 0);
+                    height: 1px;
+                    margin: -1px;
+                    overflow: hidden;
+                    padding: 0;
+                    position: absolute;
+                    width: 1px;
+                }
+                table tr {
+                    border-bottom: 3px solid #ddd;
+                    display: block;
+                    margin-bottom: .625em;
+                }
+                table td {
+                    border-bottom: 1px solid #ddd;
+                    display: block;
+                    font-size: .8em;
+                    text-align: right;
+                }
+                table td:before {
+                    /*
+                    * aria-label has no advantage, it won't be read inside a table
+                    content: attr(aria-label);
+                    */
+                    content: attr(data-label);
+                    float: left;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+                table td:last-child {
+                    border-bottom: 0;
+                }
+            }
+
+            body {
+                background-color: #EEEEEE;
+                font-family: "DejaVu Sans", sans-serif;
+                font-size: 10px;
+            }
+
+            hr {
+                margin: 20px 0;
+                display: block;
+                height: 1px;
+                border: 0;
+                border-top: 1px solid #ccc;
+                padding: 0;
+            }
+        </style>
+    </head>
+    <body>
+    <div style="width: 500px; margin: 0 auto;">
+        <!--<h2>CI Waiting list</h2>-->
+        <form action="app.php" method="get">
+            <input type="hidden" name="action" value="create">
+            <input class="inpute" name="username" type="text" placeholder="Name">
+            <input class="inpute" name="url" type="text" placeholder="Pull Request URL">
+            <button class="ma-button" type="submit">Send</button>
+        </form>
+
+        <hr>
+
+        <table id="app-4">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Github URL</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>-</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in items">
+                    <td>{{ item.username }}</td>
+                    <td><a target="_blank" :href="item.url">LINK</a></td>
+                    <td>{{ item.date }}</td>
+                    <td v-if="item.finished">✅</td>
+                    <td v-if="!item.finished"><a :href="item.finishedAction" >Mark as finished</a></td>
+                    <td><a :href="item.deleteAction" style="color: #e65b46;">Delete</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </body>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <script>
+        $.get('items.json').then((items) => {
+            items = items.map((item) => {
+                return $.extend(item, {
+                    'deleteAction': 'app.php?action=delete&id=' + item.id,
+                    'finishedAction': 'app.php?action=finished&id=' + item.id
+                });
+            });
+
+            console.log(items);
+
+            const app4 = new Vue({
+                el: '#app-4',
+                data: {
+                    items: items
+                }
+            })
+        });
+    </script>
+
+</html>
