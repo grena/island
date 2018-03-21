@@ -1,5 +1,10 @@
 <?php
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
+
+include_once('vendor/autoload.php');
+
 if (isset($_GET['action'])) {
     switch ($_GET['action']) {
         case 'create':
@@ -39,8 +44,36 @@ function create() {
     $items[] = $item;
 
     file_put_contents('items.json', json_encode($items, true));
+
+    notify($item['username'], $item['url']);
+
     header('Location: index.html');
     exit();
+}
+
+function notify ($username, $url) {
+    $SLACK_URL = getenv('SLACK_URL');
+    if (!$SLACK_URL) {
+        return;
+    }
+
+    $data = [
+        'text' => sprintf(
+            '%s wants to run a CI build for %s',
+            $username,
+            $url
+        ),
+    ];
+
+    $client = new Client();
+    $request = new Request(
+        'POST',
+        $SLACK_URL,
+        ['Content-type' => 'application/json'],
+        json_encode($data)
+    );
+    $promise = $client->sendAsync($request, ['timeout' => 10]);
+    $promise->wait(false);
 }
 
 function finished() {

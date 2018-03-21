@@ -6,5 +6,8 @@
             "email": "hello@grena.fr"
         }
     ],
-    "require": {}
+    "require": {
+        "wrapi/slack": "^0.1.6",
+        "guzzlehttp/guzzle": "^6.3"
+    }
 }
