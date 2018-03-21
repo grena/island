@@ -173,7 +173,7 @@
         </style>
     </head>
     <body>
-    <div style="width: 500px; margin: 0 auto;">
+    <div style="width: 700px; margin: 0 auto;">
         <!--<h2>CI Waiting list</h2>-->
         <form action="app.php" method="get">
             <input type="hidden" name="action" value="create">
@@ -187,6 +187,7 @@
         <table id="app-4">
             <thead>
                 <tr>
+                    <th>#</th>
                     <th>Username</th>
                     <th>Github URL</th>
                     <th>Date</th>
@@ -194,8 +195,9 @@
                     <th>-</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="items">
                 <tr v-for="item in items">
+                    <td v-bind:data-uuid="item.id" class="my-handle" style="cursor: grabbing;">{{ item.pos }}</td>
                     <td>{{ item.username }}</td>
                     <td><a target="_blank" :href="item.url">LINK</a></td>
                     <td>{{ item.date }}</td>
@@ -205,19 +207,36 @@
                 </tr>
             </tbody>
         </table>
+
+        <!--<ul id="app-4">-->
+            <!--<li v-for="item in items" style="background-color: #fff;">-->
+                <!--<p>{{ item.pos }}</p>-->
+                <!--<p>{{ item.username }}</p>-->
+                <!--<p><a target="_blank" :href="item.url">LINK</a></p>-->
+                <!--<p>{{ item.date }}</p>-->
+                <!--<p v-if="item.finished">✅</p>-->
+                <!--<p v-if="!item.finished"><a :href="item.finishedAction" >Mark as finished</a></p>-->
+                <!--<p><a :href="item.deleteAction" style="color: #e65b46;">Delete</a></p>-->
+            <!--</li>-->
+        <!--</ul>-->
     </div>
     </body>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
 
     <script>
         $.get('items.json').then((items) => {
+            console.log(items);
+
             items = items.map((item) => {
                 return $.extend(item, {
                     'deleteAction': 'app.php?action=delete&id=' + item.id,
                     'finishedAction': 'app.php?action=finished&id=' + item.id
                 });
+            }).sort(function(obj1, obj2) {
+                return obj1.pos - obj2.pos;
             });
 
             console.log(items);
@@ -227,8 +246,33 @@
                 data: {
                     items: items
                 }
-            })
+            });
+
+            const el = document.getElementById('items');
+            const sortable = Sortable.create(el, {
+                handle: ".my-handle",
+                onEnd: function (evt) {
+                    applySort();
+                },
+            });
         });
+
+        function applySort()
+        {
+            let ordersIds = {};
+
+            $('.my-handle').each(function(index, element) {
+                let id = $(element).data('uuid');
+                ordersIds[id] = index;
+            });
+
+            $.post('app.php', {
+                'action': 'sorted',
+                'orders': ordersIds
+            }).then(() => {
+                location.reload();
+            });
+        }
     </script>
 
 </html>
