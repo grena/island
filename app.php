@@ -8,15 +8,16 @@ include_once('vendor/autoload.php');
 $url = getenv('JAWSDB_MARIA_URL');
 $dbparts = parse_url($url);
 
+$table = 'items';
 $hostname = $dbparts['host'];
 $username = $dbparts['user'];
 $password = $dbparts['pass'];
 $database = ltrim($dbparts['path'],'/');
 
 try {
-    $conn = new PDO("mysql:host=$hostname;dbname=$database", $username, $password);
+    $pdo = new PDO("mysql:host=$hostname;dbname=$database", $username, $password);
     // set the PDO error mode to exception
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 //    echo "Connected successfully";
 }
 catch(PDOException $e)
@@ -24,6 +25,28 @@ catch(PDOException $e)
     echo "Connection failed: " . $e->getMessage();
 }
 
+// Try a select statement against the table
+// Run it in try/catch in case PDO is in ERRMODE_EXCEPTION.
+try {
+    $result = $pdo->query("SELECT 1 FROM $table LIMIT 1");
+} catch (Exception $e) {
+    $sql ="CREATE TABLE `$table` (
+      `id` varchar(255) NOT NULL,
+      `username` varchar(255) NOT NULL,
+      `url` varchar(255) NOT NULL,
+      `finished` bit NOT NULL,
+      `date` varchar(255) NOT NULL,
+      `pos` int NOT NULL
+    );" ;
+    $db->exec($sql);
+}
+
+//'id' => md5(time()),
+//'username' => htmlspecialchars($_GET['username']),
+//'url' => htmlspecialchars($_GET['url']),
+//'finished' => false,
+//'date' => $now->format('Y-m-d H:i:s'),
+//'pos' => count($items)
 
 if (isset($_GET['action'])) {
     switch ($_GET['action']) {
