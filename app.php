@@ -70,12 +70,12 @@ function getPdo(): PDO
 {
     $url = getenv('JAWSDB_MARIA_URL');
     $dbparts = parse_url($url);
-    $dbparts = [
-        'host' => 'localhost',
-        'user' => 'akeneo_pim',
-        'pass' => 'akeneo_pim',
-        'path' => 'akeneo_pim'
-    ];
+//    $dbparts = [
+//        'host' => 'localhost',
+//        'user' => 'akeneo_pim',
+//        'pass' => 'akeneo_pim',
+//        'path' => 'akeneo_pim'
+//    ];
 
     $hostname = $dbparts['host'];
     $username = $dbparts['user'];
