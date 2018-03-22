@@ -174,12 +174,16 @@
     </head>
     <body>
     <div style="width: 800px; margin: 0 auto;">
-        <h2>CI Waiting list</h2>
+        <div style="text-align: center;">
+            <img src="Jenkins_Fuck.png" alt="" style="width: 150px;">
+            <h2 style="margin-top: 0;">CI Waiting list</h2>
+        </div>
         <form action="app.php" method="get">
             <input type="hidden" name="action" value="create">
             <input class="inpute" name="username" type="text" placeholder="Name">
             <input class="inpute" name="url" type="text" placeholder="Pull Request URL">
-            <button class="ma-button" type="submit">Send to the CI MANAGER</button>
+            <button style="float: right;" class="ma-button" type="submit">Send to the CI MANAGER</button>
+            <div style="clear: both;"></div>
         </form>
 
         <hr>
