@@ -9,6 +9,9 @@ checkTableExists();
 
 if (isset($_GET['action'])) {
     switch ($_GET['action']) {
+        case 'quote':
+            quote();
+            break;
         case 'items':
             httpItems();
             break;
@@ -68,14 +71,17 @@ function checkTableExists()
 
 function getPdo(): PDO
 {
+    $dbparts = [
+        'host' => 'localhost',
+        'user' => 'akeneo_pim',
+        'pass' => 'akeneo_pim',
+        'path' => 'akeneo_pim'
+    ];
+
     $url = getenv('JAWSDB_MARIA_URL');
-    $dbparts = parse_url($url);
-//    $dbparts = [
-//        'host' => 'localhost',
-//        'user' => 'akeneo_pim',
-//        'pass' => 'akeneo_pim',
-//        'path' => 'akeneo_pim'
-//    ];
+    if ($url) {
+        $dbparts = parse_url($url);
+    }
 
     $hostname = $dbparts['host'];
     $username = $dbparts['user'];
@@ -236,3 +242,12 @@ function sorted() {
     }
 }
 
+function quote()
+{
+    $client = new Client();
+    $res = $client->request('GET', 'https://kaamelott.chaudie.re/api/random');
+//    echo $res->getStatusCode();
+
+    header('Content-Type: application/json');
+    echo $res->getBody();
+}
