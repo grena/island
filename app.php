@@ -224,8 +224,6 @@ function updateItem(array $item)
 
 function sorted() {
     $items = getItems();
-    $orderedItems = [];
-
     $ordersIds = $_POST['orders'];
 
     foreach ($items as $item) {
@@ -234,9 +232,7 @@ function sorted() {
             $item['pos'] = $ordersIds[$id]['pos'];
         }
 
-        $orderedItems[] = $item;
+        updateItem($item);
     }
-
-    file_put_contents('items.json', json_encode($orderedItems, true));
 }
 
