@@ -173,13 +173,13 @@
         </style>
     </head>
     <body>
-    <div style="width: 700px; margin: 0 auto;">
-        <!--<h2>CI Waiting list</h2>-->
+    <div style="width: 800px; margin: 0 auto;">
+        <h2>CI Waiting list</h2>
         <form action="app.php" method="get">
             <input type="hidden" name="action" value="create">
             <input class="inpute" name="username" type="text" placeholder="Name">
             <input class="inpute" name="url" type="text" placeholder="Pull Request URL">
-            <button class="ma-button" type="submit">Send</button>
+            <button class="ma-button" type="submit">Send to the CI MANAGER</button>
         </form>
 
         <hr>
@@ -202,23 +202,11 @@
                     <td><a target="_blank" :href="item.url">LINK</a></td>
                     <td>{{ item.date }}</td>
                     <td v-if="item.finished">✅</td>
-                    <td v-if="!item.finished"><a :href="item.finishedAction" >Mark as finished</a></td>
-                    <td><a :href="item.deleteAction" style="color: #e65b46;">Delete</a></td>
+                    <td v-if="!item.finished"><a class="ma-button action" :href="item.finishedAction" ><small>Mark as finished</small></a></td>
+                    <td style="padding: 10px;"><a class="ma-button danger" :href="item.deleteAction" style="color: #e65b46;"><small>Delete</small></a></td>
                 </tr>
             </tbody>
         </table>
-
-        <!--<ul id="app-4">-->
-            <!--<li v-for="item in items" style="background-color: #fff;">-->
-                <!--<p>{{ item.pos }}</p>-->
-                <!--<p>{{ item.username }}</p>-->
-                <!--<p><a target="_blank" :href="item.url">LINK</a></p>-->
-                <!--<p>{{ item.date }}</p>-->
-                <!--<p v-if="item.finished">✅</p>-->
-                <!--<p v-if="!item.finished"><a :href="item.finishedAction" >Mark as finished</a></p>-->
-                <!--<p><a :href="item.deleteAction" style="color: #e65b46;">Delete</a></p>-->
-            <!--</li>-->
-        <!--</ul>-->
     </div>
     </body>
 
@@ -227,9 +215,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
 
     <script>
-        $.get('items.json').then((items) => {
-            console.log(items);
-
+        $.get('app.php?action=items').then((items) => {
             items = items.map((item) => {
                 return $.extend(item, {
                     'deleteAction': 'app.php?action=delete&id=' + item.id,
