@@ -1,28 +1,30 @@
 <?php
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
+use Island\ItemRepository;
+use Island\Kaamelott;
+use Island\Notifier;
 
 include_once('vendor/autoload.php');
 
-checkTableExists();
+$itemRepo = new ItemRepository();
+$itemRepo->ensureTableExists();
 
 if (isset($_GET['action'])) {
     switch ($_GET['action']) {
         case 'quote':
-            quote();
+            quoteAction();
             break;
         case 'items':
-            httpItems();
+            listAction();
             break;
         case 'create':
-            create();
+            createAction();
             break;
         case 'finished':
-            finished();
+            finishedAction();
             break;
         case 'delete':
-            delete();
+            deleteAction();
             break;
     }
 }
@@ -30,206 +32,71 @@ if (isset($_GET['action'])) {
 if (isset($_POST['action'])) {
     switch ($_POST['action']) {
         case 'sorted':
-            sorted();
+            sortedAction();
             break;
     }
 }
 
-function httpItems()
+/**
+ * Send JSON of all items.
+ */
+function listAction()
 {
-    $items = getItems();
+    $itemRepo = new ItemRepository();
+    $items = $itemRepo->getAll();
 
     header('Content-Type: application/json');
     echo json_encode($items);
 }
 
-function checkTableExists()
-{
-    $pdo = getPdo();
-    // Try a select statement against the table
-    // Run it in try/catch in case PDO is in ERRMODE_EXCEPTION.
-    try {
-        $result = $pdo->query("SELECT 1 FROM items LIMIT 1");
-    } catch (Exception $e) {
-        $sql ="CREATE TABLE `items` (
-      `id` varchar(255) NOT NULL,
-      `username` varchar(255) NOT NULL,
-      `url` varchar(255) NOT NULL,
-      `finished` bit NOT NULL,
-      `date` varchar(255) NOT NULL,
-      `pos` int NOT NULL
-    );" ;
-
-        try {
-            $pdo->exec($sql);
-        } catch(PDOException $e) {
-            echo $e->getMessage();
-            die();
-        }
-    }
-}
-
-function getPdo(): PDO
-{
-    $dbparts = [
-        'host' => 'localhost',
-        'user' => 'akeneo_pim',
-        'pass' => 'akeneo_pim',
-        'path' => 'akeneo_pim'
-    ];
-
-    $url = getenv('JAWSDB_MARIA_URL');
-    if ($url) {
-        $dbparts = parse_url($url);
-    }
-
-    $hostname = $dbparts['host'];
-    $username = $dbparts['user'];
-    $password = $dbparts['pass'];
-    $database = ltrim($dbparts['path'],'/');
-
-    try {
-        $pdo = new PDO("mysql:host=$hostname;dbname=$database", $username, $password);
-        // set the PDO error mode to exception
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-//    echo "Connected successfully";
-    }
-    catch(PDOException $e)
-    {
-        echo "Connection failed: " . $e->getMessage();
-    }
-
-    return $pdo;
-}
-
-function getItems()
-{
-    $pdo = getPdo();
-
-    $items = $pdo->query('SELECT * FROM items;')->fetchAll(PDO::FETCH_ASSOC);
-
-    $items = array_map(function ($item) {
-        $item['finished'] = $item['finished'] == '0' ? false : true;
-
-        return $item;
-    }, $items);
-
-    return $items;
-}
-
-function create() {
-    $now = new \DateTime('now');
-    $items = getItems();
-
-    $item = [
-        'id' => md5(time()),
-        'username' => htmlspecialchars($_GET['username']),
-        'url' => htmlspecialchars($_GET['url']),
-        'finished' => false,
-        'date' => $now->format('Y-m-d H:i:s'),
-        'pos' => count($items)
-    ];
-
-    $pdo = getPdo();
-    $sth = $pdo->prepare('INSERT INTO items VALUES(:id, :username, :url, :finished, :date, :pos)');
-    $sth->execute($item);
-
-    notify($item['username'], $item['url']);
-
-    header('Location: index.html');
-    exit();
-}
-
-function notify ($username, $url) {
-    $SLACK_URL = getenv('SLACK_URL');
-    if (!$SLACK_URL) {
-        return;
-    }
-
-    $data = [
-        'text' => sprintf(
-            '%s wants to run a CI build for %s',
-            $username,
-            $url
-        ),
-    ];
-
-    $client = new Client();
-    $request = new Request(
-        'POST',
-        $SLACK_URL,
-        ['Content-type' => 'application/json'],
-        json_encode($data)
+/**
+ * Create a new Item into DB.
+ */
+function createAction() {
+    $itemRepo = new ItemRepository();
+    $itemRepo->create(
+        htmlspecialchars($_GET['username']),
+        htmlspecialchars($_GET['url'])
     );
-    $promise = $client->sendAsync($request, ['timeout' => 10]);
-    $promise->wait(false);
-}
 
-function finished() {
-    $pdo = getPdo();
-    $sth = $pdo->prepare('UPDATE items SET finished = 1 WHERE id = :id');
-    $sth->execute(['id' => $_GET['id']]);
+    $notifier = new Notifier();
+    $notifier->notify(
+        htmlspecialchars($_GET['username']),
+        htmlspecialchars($_GET['url'])
+    );
 
     header('Location: index.html');
     exit();
 }
 
-function delete() {
-    $deletedItem = getItem($_GET['id']);
-    $items = getItems();
-
-    foreach ($items as $item) {
-        if ($item['pos'] > $deletedItem['pos']) {
-            $item['pos'] = $item['pos'] - 1;
-        }
-
-        updateItem($item);
-    }
-
-    $pdo = getPdo();
-    $sth = $pdo->prepare('DELETE FROM items WHERE id = :id');
-
-    try {
-        $sth->execute(['id' => $deletedItem['id']]);
-    }
-    catch(PDOException $e)
-    {
-        echo $e->getMessage();
-    }
+/**
+ * Mark an Item as finished.
+ */
+function finishedAction() {
+    $itemRepo = new ItemRepository();
+    $itemRepo->markAsFinished($_GET['id']);
 
     header('Location: index.html');
     exit();
 }
 
-function getItem(string $id)
-{
-    $pdo = getPdo();
-    $sth = $pdo->prepare('SELECT * FROM items WHERE id = :id');
-    $sth->execute(['id' => $id]);
+/**
+ * Delete an Item.
+ */
+function deleteAction() {
+    $itemRepo = new ItemRepository();
+    $itemRepo->delete($_GET['id']);
 
-    return $sth->fetch(PDO::FETCH_ASSOC);
+    header('Location: index.html');
+    exit();
 }
 
-function updateItem(array $item)
-{
-    $pdo = getPdo();
-    $sth = $pdo->prepare('UPDATE items SET pos = :pos WHERE id = :id');
-
-    try {
-        $sth->execute([
-            'id' => $item['id'],
-            'pos' => $item['pos'],
-        ]);
-    }
-    catch(PDOException $e)
-    {
-        echo $e->getMessage();
-        exit;
-    }
-}
-
-function sorted() {
-    $items = getItems();
+/**
+ * Reorder all items.
+ */
+function sortedAction() {
+    $itemRepo = new ItemRepository();
+    $items = $itemRepo->getAll();
     $ordersIds = $_POST['orders'];
 
     foreach ($items as $item) {
@@ -238,16 +105,22 @@ function sorted() {
             $item['pos'] = $ordersIds[$id]['pos'];
         }
 
-        updateItem($item);
+        $itemRepo->update($item);
     }
+
+    header('Location: index.html');
+    exit();
 }
 
-function quote()
+/**
+ * Display a JSON quote of Kaamelott.
+ *
+ * @throws \GuzzleHttp\Exception\GuzzleException
+ */
+function quoteAction()
 {
-    $client = new Client();
-    $res = $client->request('GET', 'https://kaamelott.chaudie.re/api/random');
-//    echo $res->getStatusCode();
+    $kaamelott = new Kaamelott();
 
     header('Content-Type: application/json');
-    echo $res->getBody();
+    echo $kaamelott->getQuote();
 }

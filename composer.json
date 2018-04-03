@@ -9,5 +9,10 @@
     "require": {
         "wrapi/slack": "^0.1.6",
         "guzzlehttp/guzzle": "^6.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Island\\": "src/"
+        }
     }
 }
